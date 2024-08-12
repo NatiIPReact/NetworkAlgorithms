@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike-Sharing Zone Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            height: 100vh;
+        }
+
+        #map {
+            grid-column: 2;
+            overflow: hidden;
+        }
+
+        .container {
+            grid-column: 1;
+            background-color: #ddffaa;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpolygon fill='%23AE9' points='120 120 60 120 90 90 120 60 120 0 120 0 60 60 0 0 0 60 30 90 60 120 120 120 '/%3E%3C/svg%3E");
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #map>div:nth-child(1)>div:nth-child(1)>iframe:nth-child(2) {
+            height: 100vh !important;
+        }
+
+        img {
+            object-fit: cover;
+            height: auto;
+            max-width: 80%;
+        }
+
+        button {
+            background-color: #ddffaa;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: solid 1px black;
+        }
+
+        input {
+            padding: 20px;
+            font-size: 18px;
+        }
+
+        h1 {
+            font-size: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="inputs">
+            <h1>Bike-Sharing Zone Prediction</h1>
+            <form id="prediction-form">
+                <input type="number" id="proximity_value" name="proximity_value" step="0.01" min="0" max="1" required
+                    placeholder="Proximity Value">
+                <input type="number" id="median_income" name="median_income" step="0.01" min="0" required
+                    placeholder="Median Income">
+                <button type="submit">Predict</button>
+            </form>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/image.png') }}" alt="Prediction Image">
+        </div>
+    </div>
+
+    <div id="map"></div>
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            let proximityValue = document.getElementById('proximity_value').value;
+            let medianIncome = document.getElementById('median_income').value;
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ proximity_value: proximityValue, median_income: medianIncome })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('map').innerHTML = data.map;
+                });
+        });
+    </script>
+</body>
+
+</html>
